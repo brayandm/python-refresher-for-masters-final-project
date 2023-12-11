@@ -1,0 +1,15 @@
+name: Californa Housing Dataframe
+description: This is a dataframe containing the Californa Housing dataset.
+num_rows: 20640
+num_columns: 10
+columns:
+- longitude
+- latitude
+- housing_median_age
+- total_rooms
+- total_bedrooms
+- population
+- households
+- median_income
+- median_house_value
+- ocean_proximity
