@@ -1,0 +1,23 @@
+name: California Housing Dataframe with Log
+description: This is a dataframe containing the California Housing dataset with log
+  applied to some columns.
+num_rows: 20640
+num_columns: 17
+columns:
+- longitude
+- latitude
+- housing_median_age
+- total_rooms
+- total_bedrooms
+- population
+- households
+- median_income
+- median_house_value
+- ocean_proximity
+- log_housing_median_age
+- log_total_rooms
+- log_total_bedrooms
+- log_population
+- log_households
+- log_median_income
+- log_median_house_value
