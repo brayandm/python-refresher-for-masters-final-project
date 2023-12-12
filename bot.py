@@ -1,5 +1,5 @@
 import logging
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
 from dotenv import load_dotenv
 import pickle
@@ -34,6 +34,8 @@ data_per_chat = {}
 
 menu = ReplyKeyboardMarkup([["📈 Predict"]])
 
+remove_keyboard = ReplyKeyboardRemove()
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! I'm a bot that predict prices of houses in California", reply_markup=menu)
@@ -46,7 +48,7 @@ async def predict(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if step_per_chat[update.effective_chat.id] != 0:
         return
 
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="Write the name of the city")
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="Write the name of the city", reply_markup=remove_keyboard)
 
     step_per_chat[update.effective_chat.id] = 1
 
@@ -67,7 +69,6 @@ async def get_city_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
         step_per_chat[update.effective_chat.id] = 2
         data_per_chat[update.effective_chat.id]['latitude'] = city['Latitude'].values[0]
         data_per_chat[update.effective_chat.id]['longitude'] = city['Longitude'].values[0]
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="City found with coordinates: " + str(city['Longitude'].values[0]) + ", " + str(city['Latitude'].values[0]))
         await context.bot.send_message(chat_id=update.effective_chat.id, text="Select the house age range", reply_markup=house_age_ranges)
 
 median_income_range = ReplyKeyboardMarkup([["0.5-3.4"], ["3.4-6.3"], ["6.3-9.2"], ["9.2-12.1"], ["12.1-15.0"]])
