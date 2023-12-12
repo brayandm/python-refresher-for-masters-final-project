@@ -21,7 +21,7 @@ california_cities_df = pd.read_csv('data/california_cities.csv')
 
 def find_city_by_name(name):
     name = name.lower().replace(' ', '')
-    return california_cities_df[california_cities_df['Name'].str.lower().replace(' ', '') == name].head(1)
+    return california_cities_df[california_cities_df['Name'].apply(lambda x: x.lower().replace(' ', '')) == name].head(1)
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
