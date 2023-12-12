@@ -47,6 +47,7 @@ async def predict(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if step_per_chat.get(update.effective_chat.id) == None:
         step_per_chat[update.effective_chat.id] = 0
+        data_per_chat[update.effective_chat.id] = {}
 
     if step_per_chat[update.effective_chat.id] != 0:
         return
@@ -140,7 +141,8 @@ async def get_ocean_proximity(update: Update, context: ContextTypes.DEFAULT_TYPE
 
     data_per_chat[update.effective_chat.id]['ocean_proximity_' + ocean_proximity] = 1
 
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="Predicting...")
+    predicting_message = await context.bot.send_message(chat_id=update.effective_chat.id, text="Predicting...")
+    predicting_message_id = predicting_message.message_id
 
     data_per_chat[update.effective_chat.id]['total_rooms'] = float(MEDIAN_TOTAL_ROOMS)
     data_per_chat[update.effective_chat.id]['total_bedrooms'] = float(MEDIAN_TOTAL_BEDROOMS)
@@ -163,7 +165,11 @@ async def get_ocean_proximity(update: Update, context: ContextTypes.DEFAULT_TYPE
     'ocean_proximity_NEAR OCEAN': data_per_chat[update.effective_chat.id]['ocean_proximity_NEAR OCEAN']
     }, index=[0])
 
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="The aproximate price of the house is: $" + str(int(xgboost.predict(data)[0])), reply_markup=menu)
+    predicted_price = str(int(xgboost.predict(data)[0]))
+    await context.bot.edit_message_text(chat_id=update.effective_chat.id, 
+                                    message_id=predicting_message_id, 
+                                    text="The approximate price of the house is: $" + predicted_price)
+                                   
 
     step_per_chat[update.effective_chat.id] = 0
     data_per_chat[update.effective_chat.id] = {}
