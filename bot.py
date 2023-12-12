@@ -45,6 +45,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def predict(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
+    if step_per_chat.get(update.effective_chat.id) == None:
+        step_per_chat[update.effective_chat.id] = 0
+
     if step_per_chat[update.effective_chat.id] != 0:
         return
 
@@ -52,7 +55,8 @@ async def predict(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     step_per_chat[update.effective_chat.id] = 1
 
-house_age_ranges = ReplyKeyboardMarkup([["1-13"], ["14-26"], ["27-39"], ["40-52"]])
+house_age_ranges = ["1-13", "14-26", "27-39", "40-52"]
+house_age_ranges_markup = ReplyKeyboardMarkup([house_age_ranges])
 
 async def get_city_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -69,9 +73,10 @@ async def get_city_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
         step_per_chat[update.effective_chat.id] = 2
         data_per_chat[update.effective_chat.id]['latitude'] = city['Latitude'].values[0]
         data_per_chat[update.effective_chat.id]['longitude'] = city['Longitude'].values[0]
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="Select the house age range", reply_markup=house_age_ranges)
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Select the house age range", reply_markup=house_age_ranges_markup)
 
-median_income_range = ReplyKeyboardMarkup([["0.5-3.4"], ["3.4-6.3"], ["6.3-9.2"], ["9.2-12.1"], ["12.1-15.0"]])
+median_income_range = ["0.5-3.4", "3.4-6.3", "6.3-9.2", "9.2-12.1", "12.1-15.0"]
+median_income_range_markup = ReplyKeyboardMarkup([median_income_range])
 
 async def get_house_age(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -80,13 +85,18 @@ async def get_house_age(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     house_age = update.message.text
 
+    if house_age not in house_age_ranges:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Invalid house age range, try again")
+        return
+
     data_per_chat[update.effective_chat.id]['housing_median_age'] = float((int(house_age.split('-')[0]) + int(house_age.split('-')[1])) / 2)    
 
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="Select the median income range", reply_markup=median_income_range)
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="Select the median income range", reply_markup=median_income_range_markup)
 
     step_per_chat[update.effective_chat.id] = 3
 
-ocean_proximity = ReplyKeyboardMarkup([["<1H OCEAN"], ["INLAND"], ["ISLAND"], ["NEAR BAY"], ["NEAR OCEAN"]])
+ocean_proximity_values = ["<1H OCEAN", "INLAND", "ISLAND", "NEAR BAY", "NEAR OCEAN"]
+ocean_proximity_values_markup = ReplyKeyboardMarkup([ocean_proximity_values])
 
 async def get_median_income(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -95,9 +105,13 @@ async def get_median_income(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     median_income = update.message.text
 
+    if median_income not in median_income_range:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Invalid median income range, try again")
+        return
+
     data_per_chat[update.effective_chat.id]['median_income'] = float((float(median_income.split('-')[0]) + float(median_income.split('-')[1])) / 2)
 
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="Select the ocean proximity", reply_markup=ocean_proximity)
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="Select the ocean proximity", reply_markup=ocean_proximity_values_markup)
 
     step_per_chat[update.effective_chat.id] = 4
 
@@ -107,6 +121,10 @@ async def get_ocean_proximity(update: Update, context: ContextTypes.DEFAULT_TYPE
         return
 
     ocean_proximity = update.message.text
+
+    if ocean_proximity not in ocean_proximity_values:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Invalid ocean proximity, try again")
+        return
 
     data_per_chat[update.effective_chat.id]['ocean_proximity_<1H OCEAN'] = 0
     data_per_chat[update.effective_chat.id]['ocean_proximity_INLAND'] = 0
@@ -139,13 +157,16 @@ async def get_ocean_proximity(update: Update, context: ContextTypes.DEFAULT_TYPE
     'ocean_proximity_NEAR OCEAN': data_per_chat[update.effective_chat.id]['ocean_proximity_NEAR OCEAN']
     }, index=[0])
 
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="The aproximate price of the house is: " + str(xgboost.predict(data)[0]), reply_markup=menu)
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="The aproximate price of the house is: " + str(int(xgboost.predict(data)[0])) + "$", reply_markup=menu)
 
     step_per_chat[update.effective_chat.id] = 0
     data_per_chat[update.effective_chat.id] = {}
 
 
 async def step_analizer(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if step_per_chat.get(update.effective_chat.id) == None:
+        return
 
     if(step_per_chat[update.effective_chat.id] == 1):
         await get_city_name(update, context)
