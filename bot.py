@@ -68,7 +68,7 @@ async def get_city_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     city = find_city_by_name(city_name)
 
     if city.empty:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="City not found, try again")
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="City not found, try again", reply_markup=remove_keyboard)
     else:
         step_per_chat[update.effective_chat.id] = 2
         data_per_chat[update.effective_chat.id]['latitude'] = city['Latitude'].values[0]
@@ -76,8 +76,6 @@ async def get_city_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(chat_id=update.effective_chat.id, text="Select the house age range in years", reply_markup=house_age_ranges_markup)
 
 median_income_range = ["0.5-3.4", "3.4-6.3", "6.3-9.2", "9.2-12.1", "12.1-15.0"]
-median_income_range_markup = ReplyKeyboardMarkup([median_income_range])
-
 neighborhood_quality_range = ["Low", "Medium", "High", "Very High", "Ultra High"]
 neighborhood_quality_range_markup = ReplyKeyboardMarkup([neighborhood_quality_range])
 
@@ -89,7 +87,7 @@ async def get_house_age(update: Update, context: ContextTypes.DEFAULT_TYPE):
     house_age = update.message.text
 
     if house_age not in house_age_ranges:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="Invalid house age range, try again")
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Invalid house age range, try again", reply_markup=house_age_ranges_markup)
         return
 
     data_per_chat[update.effective_chat.id]['housing_median_age'] = float((int(house_age.split('-')[0]) + int(house_age.split('-')[1])) / 2)    
@@ -99,7 +97,8 @@ async def get_house_age(update: Update, context: ContextTypes.DEFAULT_TYPE):
     step_per_chat[update.effective_chat.id] = 3
 
 ocean_proximity_values = ["<1H OCEAN", "INLAND", "ISLAND", "NEAR BAY", "NEAR OCEAN"]
-ocean_proximity_values_markup = ReplyKeyboardMarkup([ocean_proximity_values])
+ocean_proximity_values_display = ["<1h from Ocean", "Inland", "Island", "Near Bay", "Near Ocean"]
+ocean_proximity_values_markup = ReplyKeyboardMarkup([ocean_proximity_values_display])
 
 async def get_median_income(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -109,7 +108,7 @@ async def get_median_income(update: Update, context: ContextTypes.DEFAULT_TYPE):
     neighborhood_quality = update.message.text
 
     if neighborhood_quality not in neighborhood_quality_range:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="Invalid neighborhood quality, try again")
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Invalid neighborhood quality, try again", reply_markup=neighborhood_quality_range_markup)
         return
     
     median_income = median_income_range[neighborhood_quality_range.index(neighborhood_quality)]
@@ -127,9 +126,11 @@ async def get_ocean_proximity(update: Update, context: ContextTypes.DEFAULT_TYPE
 
     ocean_proximity = update.message.text
 
-    if ocean_proximity not in ocean_proximity_values:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="Invalid ocean proximity, try again")
+    if ocean_proximity not in ocean_proximity_values_display:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Invalid ocean proximity, try again", reply_markup=ocean_proximity_values_markup)
         return
+    
+    ocean_proximity = ocean_proximity_values[ocean_proximity_values_display.index(ocean_proximity)]
 
     data_per_chat[update.effective_chat.id]['ocean_proximity_<1H OCEAN'] = 0
     data_per_chat[update.effective_chat.id]['ocean_proximity_INLAND'] = 0
@@ -171,6 +172,7 @@ async def get_ocean_proximity(update: Update, context: ContextTypes.DEFAULT_TYPE
 async def step_analizer(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if step_per_chat.get(update.effective_chat.id) == None:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Press the predict button to start predicting", reply_markup=menu)
         return
 
     if(step_per_chat[update.effective_chat.id] == 1):
@@ -181,6 +183,8 @@ async def step_analizer(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await get_median_income(update, context)
     elif(step_per_chat[update.effective_chat.id] == 4):
         await get_ocean_proximity(update, context)
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Press the predict button to start predicting", reply_markup=menu)
 
 
 if __name__ == '__main__':
