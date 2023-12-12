@@ -1,0 +1,6 @@
+name: Experiment 7
+description: Here we are using a XGBoost regressor with all columns and grid search.
+metrics:
+  mse: 4789323731.243798
+  r2: 0.6345168713913261
+  rmse: 69204.94007831955
