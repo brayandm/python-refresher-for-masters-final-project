@@ -1,6 +1,6 @@
 name: Experiment 3
-description: Here we are using a XGBoost regressor with all columns.
+description: Here we are using a XGBoost regressor with 2 PCA components.
 metrics:
-  mse: 2266980132.811391
-  r2: 0.8270020909155706
-  rmse: 47612.81479613856
+  mse: 7330171703.207124
+  r2: 0.44061954512497414
+  rmse: 85616.42192481022

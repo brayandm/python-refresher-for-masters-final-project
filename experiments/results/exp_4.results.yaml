@@ -1,6 +1,6 @@
 name: Experiment 4
-description: Here we are using a Random Forest regressor with all columns.
+description: Here we are using a XGBoost regressor with all columns.
 metrics:
-  mse: 3956673203.344221
-  r2: 0.6980581429886354
-  rmse: 62902.09220164478
+  mse: 2266980132.811391
+  r2: 0.8270020909155706
+  rmse: 47612.81479613856
