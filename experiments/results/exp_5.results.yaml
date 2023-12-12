@@ -1,6 +1,6 @@
 name: Experiment 5
 description: Here we are using a Random Forest regressor with all columns.
 metrics:
-  mse: 3944903686.973282
-  r2: 0.6989562989511151
-  rmse: 62808.46827437588
+  mse: 3995156600.306111
+  r2: 0.6951213959424156
+  rmse: 63207.2511687236

@@ -16,7 +16,8 @@ class RFRegressor(BaseEstimator, RegressorMixin):
             self.transformer = experiments.transformers.pca_transformer.PCATransformer(n_components=self.n_pca_components)
         self.regressor = RandomForestRegressor(
             n_estimators=self.n_estimators,
-            max_depth=self.max_depth
+            max_depth=self.max_depth,
+            random_state=42
         )
 
     def fit(self, X, y=None):
