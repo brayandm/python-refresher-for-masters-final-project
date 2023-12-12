@@ -9,6 +9,10 @@ import os
 load_dotenv()
 
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+MEDIAN_TOTAL_ROOMS = os.getenv('MEDIAN_TOTAL_ROOMS')
+MEDIAN_TOTAL_BEDROOMS = os.getenv('MEDIAN_TOTAL_BEDROOMS')
+MEDIAN_POPULATION = os.getenv('MEDIAN_POPULATION')
+MEDIAN_HOUSEHOLDS = os.getenv('MEDIAN_HOUSEHOLDS')
 
 with open('xgboost.pkl', 'rb') as file:
     xgboost = pickle.load(file)
