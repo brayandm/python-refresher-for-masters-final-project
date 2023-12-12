@@ -9,7 +9,8 @@ reload(experiments.transformers.pca_transformer)
 class LinearRegressor(BaseEstimator, RegressorMixin):
         
         def __init__(self, n_components=2):
-            self.transformer = experiments.transformers.pca_transformer.PCATransformer(n_components=n_components)
+            self.n_components = n_components
+            self.transformer = experiments.transformers.pca_transformer.PCATransformer(n_components=self.n_components)
             self.regressor = LinearRegression()
         
         def fit(self, X, y=None):
