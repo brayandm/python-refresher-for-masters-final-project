@@ -1,0 +1,6 @@
+name: Experiment 2
+description: Here we are using a XGBoost regressor with 2 PCA components.
+metrics:
+  mse: 7330171703.207124
+  r2: 0.44061954512497414
+  rmse: 85616.42192481022

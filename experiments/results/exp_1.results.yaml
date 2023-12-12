@@ -1,0 +1,6 @@
+name: Experiment 1
+description: Here we are using a linear regressor with 2 PCA components.
+metrics:
+  mse: 9146658873.296352
+  r2: 0.30199967909447034
+  rmse: 95638.16640492619

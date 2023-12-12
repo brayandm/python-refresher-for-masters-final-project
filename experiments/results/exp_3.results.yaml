@@ -1,0 +1,6 @@
+name: Experiment 3
+description: Here we are using a XGBoost regressor with all columns.
+metrics:
+  mse: 2266980132.811391
+  r2: 0.8270020909155706
+  rmse: 47612.81479613856
