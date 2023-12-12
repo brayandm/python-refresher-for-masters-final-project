@@ -15,12 +15,14 @@ class LinearRegressor(BaseEstimator, RegressorMixin):
             self.regressor = LinearRegression()
         
         def fit(self, X, y=None):
+            X = X.to_numpy()
             if self.n_pca_components > 0:
                 X = self.transformer.fit_transform(X)
             self.regressor.fit(X, y)
             return self
     
         def predict(self, X, y=None):
+            X = X.to_numpy()
             if self.n_pca_components > 0:
                 X = self.transformer.transform(X)
             return self.regressor.predict(X)
