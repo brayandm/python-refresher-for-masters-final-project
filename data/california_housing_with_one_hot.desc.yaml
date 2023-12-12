@@ -2,7 +2,7 @@ name: California Housing Dataframe with One Hot
 description: This is a dataframe containing the California Housing dataset with one
   hot encoding.
 num_rows: 20640
-num_columns: 34
+num_columns: 35
 columns:
 - longitude
 - latitude
@@ -13,20 +13,21 @@ columns:
 - households
 - median_income
 - median_house_value
-- housing_median_age
-- total_rooms
-- population
-- households
-- median_income
 - housing_median_age^2
 - housing_median_age total_rooms
+- housing_median_age total_bedrooms
 - housing_median_age population
 - housing_median_age households
 - housing_median_age median_income
 - total_rooms^2
+- total_rooms total_bedrooms
 - total_rooms population
 - total_rooms households
 - total_rooms median_income
+- total_bedrooms^2
+- total_bedrooms population
+- total_bedrooms households
+- total_bedrooms median_income
 - population^2
 - population households
 - population median_income
