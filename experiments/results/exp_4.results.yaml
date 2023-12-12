@@ -1,0 +1,6 @@
+name: Experiment 4
+description: Here we are using a Random Forest regressor with all columns.
+metrics:
+  mse: 3951518482.514883
+  r2: 0.6984515103201274
+  rmse: 62861.10468735721
