@@ -75,7 +75,7 @@ async def get_city_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
         data_per_chat[update.effective_chat.id]['longitude'] = city['Longitude'].values[0]
         await context.bot.send_message(chat_id=update.effective_chat.id, text="Select the house age range", reply_markup=house_age_ranges_markup)
 
-median_income_range = ["0.5-3.4", "3.4-6.3", "6.3-9.2", "9.2-12.1", "12.1-15.0"]
+median_income_range = ["$5K-$34K", "$34K-$63K", "$63K-$92K", "$92K-$121K", "121K-150K"]
 median_income_range_markup = ReplyKeyboardMarkup([median_income_range])
 
 async def get_house_age(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -91,7 +91,7 @@ async def get_house_age(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     data_per_chat[update.effective_chat.id]['housing_median_age'] = float((int(house_age.split('-')[0]) + int(house_age.split('-')[1])) / 2)    
 
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="Select the median income range", reply_markup=median_income_range_markup)
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="Select the anual income range", reply_markup=median_income_range_markup)
 
     step_per_chat[update.effective_chat.id] = 3
 
