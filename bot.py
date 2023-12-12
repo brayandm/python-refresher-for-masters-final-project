@@ -139,7 +139,7 @@ async def get_ocean_proximity(update: Update, context: ContextTypes.DEFAULT_TYPE
     'ocean_proximity_NEAR OCEAN': data_per_chat[update.effective_chat.id]['ocean_proximity_NEAR OCEAN']
     }, index=[0])
 
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="The price of the house is: " + str(xgboost.predict(data)[0]))
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="The aproximate price of the house is: " + str(xgboost.predict(data)[0]), reply_markup=menu)
 
     step_per_chat[update.effective_chat.id] = 0
     data_per_chat[update.effective_chat.id] = {}
