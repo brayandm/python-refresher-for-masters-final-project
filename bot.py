@@ -23,38 +23,6 @@ def find_city_by_name(name):
     name = name.lower().replace(' ', '')
     return california_cities_df[california_cities_df['Name'].str.lower().replace(' ', '') == name].head(1)
 
-longitude = -122.23
-latitude = 37.88
-housing_median_age = 41.0
-total_rooms = 880.0
-total_bedrooms = 129.0
-population = 322.0
-households = 126.0
-median_income = 8.3252
-ocean_proximity_1H_OCEAN = 1
-ocean_proximity_INLAND = 0
-ocean_proximity_ISLAND = 0
-ocean_proximity_NEAR_BAY = 0
-ocean_proximity_NEAR_OCEAN = 0
-
-data = pd.DataFrame({
-    'longitude': [longitude],
-    'latitude': [latitude],
-    'housing_median_age': [housing_median_age],
-    'total_rooms': [total_rooms],
-    'total_bedrooms': [total_bedrooms],
-    'population': [population],
-    'households': [households],
-    'median_income': [median_income],
-    'ocean_proximity_<1H OCEAN': [ocean_proximity_1H_OCEAN],
-    'ocean_proximity_INLAND': [ocean_proximity_INLAND],
-    'ocean_proximity_ISLAND': [ocean_proximity_ISLAND],
-    'ocean_proximity_NEAR BAY': [ocean_proximity_NEAR_BAY],
-    'ocean_proximity_NEAR OCEAN': [ocean_proximity_NEAR_OCEAN]
-})
-
-print(xgboost.predict(data))
-
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
@@ -82,6 +50,8 @@ async def predict(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     step_per_chat[update.effective_chat.id] = 1
 
+house_age_ranges = ReplyKeyboardMarkup([["1-13"], ["14-26"], ["27-39"], ["40-52"]])
+
 async def get_city_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if step_per_chat[update.effective_chat.id] != 1:
@@ -98,6 +68,92 @@ async def get_city_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
         data_per_chat[update.effective_chat.id]['latitude'] = city['Latitude'].values[0]
         data_per_chat[update.effective_chat.id]['longitude'] = city['Longitude'].values[0]
         await context.bot.send_message(chat_id=update.effective_chat.id, text="City found with coordinates: " + str(city['Longitude'].values[0]) + ", " + str(city['Latitude'].values[0]))
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Select the house age range", reply_markup=house_age_ranges)
+
+median_income_range = ReplyKeyboardMarkup([["0.5-3.4"], ["3.4-6.3"], ["6.3-9.2"], ["9.2-12.1"], ["12.1-15.0"]])
+
+async def get_house_age(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if step_per_chat[update.effective_chat.id] != 2:
+        return
+
+    house_age = update.message.text
+
+    data_per_chat[update.effective_chat.id]['housing_median_age'] = float((int(house_age.split('-')[0]) + int(house_age.split('-')[1])) / 2)    
+
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="Select the median income range", reply_markup=median_income_range)
+
+    step_per_chat[update.effective_chat.id] = 3
+
+ocean_proximity = ReplyKeyboardMarkup([["<1H OCEAN"], ["INLAND"], ["ISLAND"], ["NEAR BAY"], ["NEAR OCEAN"]])
+
+async def get_median_income(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if step_per_chat[update.effective_chat.id] != 3:
+        return
+
+    median_income = update.message.text
+
+    data_per_chat[update.effective_chat.id]['median_income'] = float((float(median_income.split('-')[0]) + float(median_income.split('-')[1])) / 2)
+
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="Select the ocean proximity", reply_markup=ocean_proximity)
+
+    step_per_chat[update.effective_chat.id] = 4
+
+async def get_ocean_proximity(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if step_per_chat[update.effective_chat.id] != 4:
+        return
+
+    ocean_proximity = update.message.text
+
+    data_per_chat[update.effective_chat.id]['ocean_proximity_<1H OCEAN'] = 0
+    data_per_chat[update.effective_chat.id]['ocean_proximity_INLAND'] = 0
+    data_per_chat[update.effective_chat.id]['ocean_proximity_ISLAND'] = 0
+    data_per_chat[update.effective_chat.id]['ocean_proximity_NEAR BAY'] = 0
+    data_per_chat[update.effective_chat.id]['ocean_proximity_NEAR OCEAN'] = 0
+
+    data_per_chat[update.effective_chat.id]['ocean_proximity_' + ocean_proximity] = 1
+
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="Predicting...")
+
+    data_per_chat[update.effective_chat.id]['total_rooms'] = float(MEDIAN_TOTAL_ROOMS)
+    data_per_chat[update.effective_chat.id]['total_bedrooms'] = float(MEDIAN_TOTAL_BEDROOMS)
+    data_per_chat[update.effective_chat.id]['population'] = float(MEDIAN_POPULATION)
+    data_per_chat[update.effective_chat.id]['households'] = float(MEDIAN_HOUSEHOLDS)
+
+    data = pd.DataFrame({
+    'longitude': data_per_chat[update.effective_chat.id]['longitude'],
+    'latitude': data_per_chat[update.effective_chat.id]['latitude'],
+    'housing_median_age': data_per_chat[update.effective_chat.id]['housing_median_age'],
+    'total_rooms': data_per_chat[update.effective_chat.id]['total_rooms'],
+    'total_bedrooms': data_per_chat[update.effective_chat.id]['total_bedrooms'],
+    'population': data_per_chat[update.effective_chat.id]['population'],
+    'households': data_per_chat[update.effective_chat.id]['households'],
+    'median_income': data_per_chat[update.effective_chat.id]['median_income'],
+    'ocean_proximity_<1H OCEAN': data_per_chat[update.effective_chat.id]['ocean_proximity_<1H OCEAN'],
+    'ocean_proximity_INLAND': data_per_chat[update.effective_chat.id]['ocean_proximity_INLAND'],
+    'ocean_proximity_ISLAND': data_per_chat[update.effective_chat.id]['ocean_proximity_ISLAND'],
+    'ocean_proximity_NEAR BAY': data_per_chat[update.effective_chat.id]['ocean_proximity_NEAR BAY'],
+    'ocean_proximity_NEAR OCEAN': data_per_chat[update.effective_chat.id]['ocean_proximity_NEAR OCEAN']
+    }, index=[0])
+
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="The price of the house is: " + str(xgboost.predict(data)[0]))
+
+    step_per_chat[update.effective_chat.id] = 0
+    data_per_chat[update.effective_chat.id] = {}
+
+
+async def step_analizer(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if(step_per_chat[update.effective_chat.id] == 1):
+        await get_city_name(update, context)
+    elif(step_per_chat[update.effective_chat.id] == 2):
+        await get_house_age(update, context)
+    elif(step_per_chat[update.effective_chat.id] == 3):
+        await get_median_income(update, context)
+    elif(step_per_chat[update.effective_chat.id] == 4):
+        await get_ocean_proximity(update, context)
 
 
 if __name__ == '__main__':
@@ -106,6 +162,6 @@ if __name__ == '__main__':
     start_handler = CommandHandler('start', start)
     application.add_handler(start_handler)
     application.add_handler(MessageHandler(filters.Regex('📈 Predict'), predict))
-    application.add_handler(MessageHandler(filters.Regex('(.*)'), get_city_name))
+    application.add_handler(MessageHandler(filters.Regex('(.*)'), step_analizer))
     
     application.run_polling()
